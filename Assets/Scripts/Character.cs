@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
+    GameManager gameManger;
     Rigidbody2D rigidBody2D;
     TriggerDetector triggerDetector;
     Animator animator;
@@ -11,9 +12,12 @@ public class Character : MonoBehaviour
 
     public Transform visual;
     public float moveForce;
+    public float jumpForce;
 
     void Start()
     {
+        var obj = GameObject.Find("GameManager");
+        gameManger = obj.GetComponent<GameManager>();
         rigidBody2D = GetComponent<Rigidbody2D>();
         triggerDetector = GetComponentInChildren<TriggerDetector>();
         animator = GetComponentInChildren<Animator>();
@@ -32,6 +36,12 @@ public class Character : MonoBehaviour
             rigidBody2D.AddForce(new Vector2(moveForce, 0.0f), ForceMode2D.Impulse);
     }
 
+    public void Jump()
+    {
+        if (triggerDetector.inTrigger)
+            rigidBody2D.AddForce(new Vector2(0.0f, jumpForce), ForceMode2D.Impulse);
+    }
+
     void Update()
     {
         float velocity = rigidBody2D.velocity.x;
@@ -46,5 +56,12 @@ public class Character : MonoBehaviour
         visual.localScale = scale;
 
         animator.SetFloat("speed", Mathf.Abs(velocity));
+
+        animator.SetBool("isJumping", !triggerDetector.inTrigger);
+
+        if (visual.position.y <= -6)
+        {
+            gameManger.EndGame();
+        }
     }
 }
